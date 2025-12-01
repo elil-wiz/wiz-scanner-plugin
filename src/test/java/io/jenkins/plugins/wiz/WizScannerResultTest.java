@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import net.sf.json.JSONObject;
 import org.junit.Test;
 
+import java.util.Optional;
+
 public class WizScannerResultTest {
 
     @Test
@@ -58,22 +60,24 @@ public class WizScannerResultTest {
         assertEquals("https://test.wiz.io/report/123", result.getReportUrl());
 
         // Check vulnerabilities
-        assertTrue(result.getVulnerabilities().isPresent());
-        WizScannerResult.Vulnerabilities vulns = result.getVulnerabilities().get();
-        assertEquals(1, vulns.getCriticalCount());
-        assertEquals(2, vulns.getHighCount());
-        assertEquals(15, vulns.getTotalCount());
+        assertTrue(result.getAnalytics().isPresent());
+
+        var vulns = result.getAnalytics().map(map -> map.get("Vulnerabilities"));
+        assertTrue(vulns.isPresent());
+        assertEquals(1, vulns.get().getCriticalCount());
+        assertEquals(2, vulns.get().getHighCount());
+        assertEquals(15, vulns.get().getTotalCount());
 
         // Check secrets
-        assertTrue(result.getSecrets().isPresent());
-        WizScannerResult.Secrets secrets = result.getSecrets().get();
-        assertEquals(1, secrets.getCriticalCount());
-        assertEquals(5, secrets.getTotalCount());
+        var secrets = result.getAnalytics().map(map -> map.get("Secrets"));
+        assertTrue(secrets.isPresent());
+        assertEquals(1, secrets.get().getCriticalCount());
+        assertEquals(5, secrets.get().getTotalCount());
 
         // Check scan statistics
-        assertTrue(result.getScanStatistics().isPresent());
-        WizScannerResult.ScanStatistics stats = result.getScanStatistics().get();
-        assertEquals(1, stats.getCriticalMatches());
+        var misconfig = result.getAnalytics().map(map -> map.get("Misconfigurations"));
+        assertTrue(misconfig.isPresent());
+        assertEquals(1, misconfig.get().getCriticalCount());
     }
 
     @Test
@@ -87,7 +91,8 @@ public class WizScannerResultTest {
 
         assertNotNull("Result should not be null", result);
         assertEquals(WizScannerResult.ScanStatus.UNKNOWN, result.getStatus());
-        assertTrue(result.getVulnerabilities().isPresent());
-        assertEquals(0, result.getVulnerabilities().get().getTotalCount());
+
+        var vulns = result.getAnalytics().map(map -> map.get("vulnerabilities"));
+        assertFalse(vulns.isPresent());
     }
 }
