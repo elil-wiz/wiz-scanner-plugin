@@ -129,7 +129,7 @@ public class WizInputValidator {
         var allowedSubCommands = version == WizCliVersion.V0 ? V0_ALLOWED_SUBCOMMANDS : V1_ALLOWED_SUBCOMMANDS;
         if (!allowedRootCommands.contains(rootCommand)) {
             throw new IllegalArgumentException(
-                    "Invalid command. Allowed commands are: " + String.join(", ", V0_ALLOWED_ROOT_COMMANDS));
+                    "Invalid command. Allowed commands are: " + String.join(", ", allowedRootCommands));
         }
 
         if (allowedSubCommands.containsKey(rootCommand) && arguments.size() > 1) {
